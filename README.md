@@ -30,8 +30,8 @@ flowchart LR
     LOKI[("Loki<br/>labels: service_name, kind")]
   end
   subgraph Grafana["Grafana + HTML graphics panels"]
-    BE["Backend — OpenTelemetry<br/>3 panels"]
-    FE["Frontend — Faro RUM<br/>3 panels"]
+    BE["Backend  OpenTelemetry<br/>3 panels"]
+    FE["Frontend  Faro RUM<br/>3 panels"]
   end
   SVC -- "OTLP traces" --> COL --> TEMPO
   WEB -- "events, vitals, errors" --> FARO --> LOKI
@@ -65,7 +65,7 @@ flowchart LR
 
 ## Dashboards
 
-### Backend — OpenTelemetry
+### Backend  OpenTelemetry
 
 | Panel | What it shows | Queries |
 |---|---|---|
@@ -90,7 +90,7 @@ How the flow map is built:
 
 </details>
 
-### Frontend — Faro RUM
+### Frontend  Faro RUM
 
 | Panel | What it shows | Queries |
 |---|---|---|
@@ -226,8 +226,8 @@ These protections are always on and covered by `scripts/test.mjs`:
 ## Development
 
 ```
-src/backend/   overview (api), traces, queries — JS + CSS
-src/frontend/  overview, calls, events — JS + CSS
+src/backend/   overview (api), traces, queries - JS + CSS
+src/frontend/  overview, calls, events - JS + CSS
 src/shared/    runtime shared by every panel
 src/fonts, src/assets   embedded fonts and logos
 scripts/       build.mjs · test.mjs · render-demo.mjs
