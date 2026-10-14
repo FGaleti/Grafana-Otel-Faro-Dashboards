@@ -6,8 +6,8 @@ Two importable dashboards that turn raw OpenTelemetry traces and Grafana Faro ev
 
 | Dashboard | Datasource | Answers |
 |---|---|---|
-| **Backend — OpenTelemetry** | Tempo (TraceQL Metrics + search) | How busy and healthy is this service? Who calls it, what does it call, which routes, requests and SQL statements are slow? |
-| **Frontend — Faro RUM** | Loki (+ Tempo for trace links) | How do real users experience the app? It covers sessions, error rate, Web Vitals, slow and failing views, the audience, failed calls and raw events. |
+| **Backend  OpenTelemetry** | Tempo (TraceQL Metrics + search) | How busy and healthy is this service? Who calls it, what does it call, which routes, requests and SQL statements are slow? |
+| **Frontend  Faro RUM** | Loki (+ Tempo for trace links) | How do real users experience the app? It covers sessions, error rate, Web Vitals, slow and failing views, the audience, failed calls and raw events. |
 
 Nothing in the JSON is tied to an account or an application. Services, routes, dependencies, SQL and traces are discovered at render time. What differs between applications (service, internal hosts, thresholds, aliases, language) is a dashboard variable.
 
