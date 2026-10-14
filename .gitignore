@@ -1,7 +1,5 @@
-# generated demo pages
 demo/out/
 
-# local work folders and work files (not part of the package)
 pw/
 dash/
 *.work.json

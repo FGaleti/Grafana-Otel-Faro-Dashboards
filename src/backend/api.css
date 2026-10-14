@@ -13,7 +13,6 @@
 .ot .n{font-variant-numeric:tabular-nums}
 .ot h1,.ot h2,.ot .big{font-family:var(--display)}
 
-/* header */
 .ot .top{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
 .ot .id{display:flex;align-items:center;gap:16px}
 .ot .logo{width:46px;height:46px;flex:none;display:grid;place-items:center}
@@ -29,7 +28,6 @@
 .ot .fresh.stale{color:var(--warn)}
 .ot .hs{display:flex;flex-direction:column;align-items:flex-end}
 
-/* KPIs */
 .ot .kpis{display:grid;grid-template-columns:repeat(4,1fr);margin-top:26px;background:var(--surface);border-radius:18px}
 .ot .kpi{padding:18px 22px 10px;border-left:1px solid var(--rule);min-width:0}
 .ot .kpi:first-child{border-left:0}
@@ -40,7 +38,6 @@
 .ot .kpi .d{font-size:12px;font-weight:500}
 .ot .kpi svg{display:block;width:100%;height:34px;margin-top:6px}
 
-/* sections */
 .ot section{margin-top:30px}
 .ot .sh{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:14px}
 .ot h2{margin:0;font-size:16px;font-weight:500}
@@ -49,7 +46,6 @@
 .ot .cols3{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,3fr) minmax(0,3fr);gap:34px}
 .ot .cols3.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 
-/* flow map */
 .ot .flow{background:linear-gradient(180deg,var(--surface),rgba(22,30,61,.4));border-radius:20px;padding:10px 6px 4px}
 .ot .flow svg{display:block;width:100%;height:auto}
 .ot .flow .lbl{font-family:var(--body);fill:var(--muted);font-size:12px}
@@ -59,7 +55,6 @@
 .ot .dep:focus-visible .fr{stroke:#5B7BFF;stroke-width:2}
 .ot .dep:hover .fr{fill:rgba(255,255,255,.03)}
 
-/* routes table */
 .ot .tr{display:grid;grid-template-columns:minmax(0,1.7fr) 62px minmax(0,1.3fr) 64px 50px 84px;gap:14px;align-items:center;padding:9px 0;border-top:1px solid var(--rule)}
 .ot .tr.h{border-top:0;padding-top:0;color:var(--faint);font-size:12px}
 .ot .r{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -71,7 +66,6 @@
 .ot .pv b{text-align:right;font-weight:500}
 .ot .tr svg{display:block;width:100%;height:24px}
 
-/* lists */
 .ot .li{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) 96px;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--rule)}
 .ot .li:first-of-type{border-top:0}
 .ot .few{color:var(--warn);font-size:12px;margin-left:6px}

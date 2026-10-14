@@ -1,15 +1,9 @@
-/* Slow and failed requests: one row per real trace, with the time split between the service's own code and its dependencies.
-   Rows come from a TraceQL search at render time; the slow threshold, Tempo datasource and language come from dashboard variables. */
-
-/* ===================== CONSTANTS (defaults) ===================== */
-const SPSS = 100;             // spans per span set requested by the query; traces that hit it are shown without a breakdown
-const MAX_TRACES = 20;        // rows listed
-const DEFAULT_SLOW_MS = 1000; // used when the slow_ms variable is empty
-const TRACE_LINK_FROM = "now-7d"; // time range opened by the trace id link in Explore
-/* db.system values treated as cache (everything else with db.system is a database) */
+const SPSS = 100;
+const MAX_TRACES = 20;
+const DEFAULT_SLOW_MS = 1000;
+const TRACE_LINK_FROM = "now-7d";
 const CACHE_SYSTEMS = ["redis", "valkey", "memcached", "dragonfly", "hazelcast", "ignite", "aerospike"];
 
-/* ===================== TEXTS (lang variable: en | pt-BR) ===================== */
 const I18N = {
   en: {
     title: "Slow and failed requests", sub: "Each row is a real request. The bar shows how long it took and where that time went.",
@@ -45,9 +39,8 @@ const I18N = {
   },
 };
 
-/*@@RUNTIME@@*/
+"@@RUNTIME@@";
 
-/* ===================== DATA: buildData(data) ===================== */
 function buildData(d) {
   const S = (d && d.series) || [];
   const tbl = S.find((x) => (x.fields || []).some((y) => /traceid/i.test(y.name)));
@@ -90,7 +83,6 @@ function buildData(d) {
   return { slowMs: RT.num("slow_ms", DEFAULT_SLOW_MS), ds: RT.v("tempo_ds", ""), traces: out };
 }
 
-/* ===================== HELPERS ===================== */
 const fmtMs = (v) => (v >= 1000 ? NF(2).format(v / 1000) + " s" : NF(0).format(v) + " ms");
 const PARTS = () => [
   ["app", t("partApp"), "var(--c-app)", t("inApp"), t("shortApp")],
@@ -112,7 +104,6 @@ function story(r) {
   return err + esc(t("split", top[1].toLowerCase(), sorted[1][1].toLowerCase()));
 }
 
-/* ===================== RENDER ===================== */
 const STATE = window.__otelTraceState || (window.__otelTraceState = { tab: "all", q: "" });
 function render(root, D) {
   const PS = PARTS();
@@ -160,5 +151,4 @@ function render(root, D) {
 
 RT.run("#bt-root", buildData, render, (D) => !D.traces.length, "empty");
 
-/* ===================== ASSETS ===================== */
-/*@@FONTS@@*/
+"@@FONTS@@";

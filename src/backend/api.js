@@ -1,23 +1,17 @@
-/* Backend overview: OpenTelemetry traces in Tempo, read with TraceQL Metrics.
-   Every route, dependency, caller and number below comes from this panel's queries at render time.
-   Service, frontend service, internal hosts, slow threshold, aliases and language come from dashboard variables. */
-
-/* ===================== CONSTANTS (defaults) ===================== */
-const MAX_ROUTES = 12;        // rows in "Busiest routes"
-const MAX_SLOW = 8;           // rows in "Slowest routes"
-const MAX_GROUPS = 8;         // rows in "Load by route group"
-const MAX_ERRORS = 8;         // rows in "5xx errors"
-const MAX_CALLERS = 4;        // inbound sources drawn on the map; the rest is summed into "Others"
-const MAX_DATA = 4;           // databases drawn on the map
-const MAX_INTERNAL = 4;       // internal services drawn on the map
-const MAX_EXTERNAL = 5;       // external hosts drawn on the map
-const DEFAULT_SLOW_MS = 1000; // used when the slow_ms variable is empty; p95 at or above it is "slow"
-const FEW_REQUESTS = 20;      // routes with fewer requests than this get a "few samples" hint
-const REFRESH_SEC = 300;      // expected refresh interval; data older than 3x this is flagged as stale
-const ERR_RATE_BAD = 1;       // % of 5xx responses that turns the header red
-const DEP_ERR_BAD = 50;       // % of failed calls that marks a dependency as failing
-const DEP_ERR_WARN = 5;       // % of failed calls that marks a dependency as degraded
-/* display names for well-known semantic-convention values (db.system, messaging.system, rpc.system, process.runtime.name) */
+const MAX_ROUTES = 12;
+const MAX_SLOW = 8;
+const MAX_GROUPS = 8;
+const MAX_ERRORS = 8;
+const MAX_CALLERS = 4;
+const MAX_DATA = 4;
+const MAX_INTERNAL = 4;
+const MAX_EXTERNAL = 5;
+const DEFAULT_SLOW_MS = 1000;
+const FEW_REQUESTS = 20;
+const REFRESH_SEC = 300;
+const ERR_RATE_BAD = 1;
+const DEP_ERR_BAD = 50;
+const DEP_ERR_WARN = 5;
 const KNOWN_NAMES = {
   mysql: "MySQL", mariadb: "MariaDB", postgresql: "PostgreSQL", mssql: "SQL Server", "microsoft.sql_server": "SQL Server", oracle: "Oracle", "oracle.db": "Oracle",
   sqlite: "SQLite", redis: "Redis", valkey: "Valkey", memcached: "Memcached", mongodb: "MongoDB", cassandra: "Cassandra", elasticsearch: "Elasticsearch",
@@ -27,7 +21,6 @@ const KNOWN_NAMES = {
   nodejs: "Node.js", node: "Node.js", cpython: "CPython", python: "Python", go: "Go", java: "Java", dotnet: ".NET", ruby: "Ruby", php: "PHP", rust: "Rust", cpp: "C++", erlang: "Erlang", swift: "Swift", webjs: "JavaScript",
 };
 
-/* ===================== TEXTS (lang variable: en | pt-BR) ===================== */
 const I18N = {
   en: {
     subtitle: "Backend instrumented with OpenTelemetry",
@@ -73,11 +66,8 @@ const I18N = {
   },
 };
 
-/*@@RUNTIME@@*/
+"@@RUNTIME@@";
 
-/* ===================== DATA: buildData(data) ===================== */
-/* The Tempo datasource renames metric frames, so each frame is recognised by the intrinsic labels its query groups by:
-   kind, status, resource.service.name and rootServiceName are never empty, and each query uses a different combination. */
 const MARKERS = ["kind", "resource.service.name", "rootServiceName", "status"];
 function buildData(d) {
   const S = (d && d.series) || [];
@@ -116,7 +106,6 @@ function buildData(d) {
   const sumBy = (list, keep) => { const T = {}; list.forEach((s) => { if (keep && !keep(s)) return; s.t.forEach((t, i) => { T[t] = (T[t] || 0) + (s.v[i] || 0); }); }); return T; };
   const q = (arr, p) => { if (!arr.length) return null; const s = arr.slice().sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.ceil(p * s.length) - 1)]; };
 
-  /* time window */
   const tr = d && d.timeRange, from = tr && tr.from ? +tr.from.valueOf() : null, to = tr && tr.to ? +tr.to.valueOf() : null;
   const MIN = from && to ? Math.max(1, (to - from) / 60000) : null;
   const raw = (d && d.request && d.request.rangeRaw) || (tr && tr.raw) || {};
@@ -128,7 +117,6 @@ function buildData(d) {
   let refreshSec = REFRESH_SEC;
   try { const r = new URLSearchParams(location.search).get("refresh"), mm = r && r.match(/^(\d+)([smh])$/); if (mm) refreshSec = +mm[1] * { s: 1, m: 60, h: 3600 }[mm[2]]; } catch (e) {}
 
-  /* routes: count by route + method + status code */
   const R = {};
   const route = (l) => { const k = (method(l) || "") + " " + l["span.http.route"]; return R[k] || (R[k] = { method: method(l) || "—", route: l["span.http.route"], n: 0, e5: 0, p95: null, p99: null, trend: [] }); };
   grp("RN").forEach((s) => { if (!s.labels["span.http.route"]) return; const r = route(s.labels), v = last(s) || 0; r.n += v; if (code(s.labels) >= 500) r.e5 += v; });
@@ -140,7 +128,6 @@ function buildData(d) {
   const p95 = ((v) => (v == null ? null : v * 1000))(one("PI"));
   const depI = ((c) => { const s = one("DSI"); return c == null || !s ? null : (c / s) * 100; })(one("DCI"));
 
-  /* KPI series */
   const KA = sumBy(grp("KR")), K5 = sumBy(grp("KR"), (s) => code(s.labels) >= 500), ts = Object.keys(KA).map(Number).sort((a, b) => a - b);
   const kp = grp("KP")[0], dc = grp("DC")[0], ds = grp("DS")[0];
   const at = (s, t) => { if (!s) return null; const i = s.t.indexOf(t); return i < 0 ? null : s.v[i]; };
@@ -151,12 +138,10 @@ function buildData(d) {
     { label: t("kDep"), value: depI, unit: "%", dec: 0, delta: null, spark: ds ? ds.t.map((x, i) => { const c = at(dc, x), v = ds.v[i]; return v ? ((c || 0) / v) * 100 : 0; }) : [] },
   ];
 
-  /* route groups: first static path segment of http.route */
   const GR = {};
   RL.forEach((r) => { const seg = String(r.route).split("/").filter(Boolean)[0] || "", g = "/" + (seg && !/^[:{*<]/.test(seg) ? seg : ""); GR[g] = (GR[g] || 0) + r.n; });
   const groups = Object.entries(GR).sort((a, b) => b[1] - a[1]);
 
-  /* callers: root service of each trace that reached a route, plus non-HTTP inbound spans */
   const C = {};
   const addCaller = (key, o, n) => { if (!n) return; const c = C[key] || (C[key] = { ...o, n: 0 }); c.n += n; };
   grp("CB").forEach((s) => {
@@ -177,7 +162,6 @@ function buildData(d) {
   }
   callers = MIN ? callers.map((c) => ({ ...c, rpm: c.n / MIN })) : [];
 
-  /* dependencies: client and producer spans, grouped by database, messaging system or host */
   const depOf = (l) => {
     const db = L(l, "span.db.system.name", "span.db.system");
     if (db) { const a = alias(db); return { key: "db:" + db, group: "data", name: (a && a.name) || KNOWN_NAMES[db] || db, kind: (a && a.kind) || t("kindDatabase") }; }
@@ -202,7 +186,6 @@ function buildData(d) {
   const list = (g, max) => Object.values(DEP).filter((o) => o.group === g && o.n > 0).sort((a, b) => b.n - a.n).slice(0, max);
   const deps = [].concat(list("data", MAX_DATA).map((o) => mk(o, t("groupData"))), list("internal", MAX_INTERNAL).map((o) => mk(o, t("groupInternal"))), list("external", MAX_EXTERNAL).map((o) => mk(o, t("groupExternal"))));
 
-  /* runtime shown in the central card: resource attributes of the service */
   const st = grp("ST").slice().sort((a, b) => (last(b) || 0) - (last(a) || 0))[0];
   const stack = st ? (() => { const l = st.labels, rn = RT.nn(l["resource.process.runtime.name"]), rv = RT.nn(l["resource.process.runtime.version"]), lg = RT.nn(l["resource.telemetry.sdk.language"]);
     const name = KNOWN_NAMES[rn] || KNOWN_NAMES[lg] || rn || lg; return name ? name + (rv ? " " + rv : "") : null; })() : null;
@@ -218,7 +201,6 @@ function buildData(d) {
   };
 }
 
-/* ===================== HELPERS ===================== */
 const ms = (v) => (v == null ? "—" : v >= 1000 ? NF(2).format(v / 1000) + " s" : NF(0).format(v) + " ms");
 const rate = (v) => (v == null ? "—" : v > 0 && v < 0.1 ? "<" + NF(1).format(0.1) : v >= 10 ? NF(0).format(v) : NF(1).format(v));
 const C = { ok: "var(--ok)", warn: "var(--warn)", bad: "var(--bad)", blue: "var(--blue)" };
@@ -238,7 +220,6 @@ function spark(v, w, h, col) {
 const route = (m, p) => `<span class="m">${esc(m)}</span>${esc(p)}`;
 const note = (txt) => `<p class="note">${esc(txt)}</p>`;
 
-/* ===================== SECTIONS ===================== */
 function head(D) {
   const bad = D.deps.filter((d) => depSt(d) === "bad"), st = D.core.err >= ERR_RATE_BAD ? "bad" : bad.length ? "warn" : "ok";
   const txt = st === "ok" ? t("healthOk") : st === "bad" ? t("healthBad") : t("healthDeps", bad.length);
@@ -347,7 +328,5 @@ function render(root, D) {
 
 RT.run("#ot-root", (d) => { const D = buildData(d); SLOW_MS = D.slowMs; return D; }, render, (D) => !D.core.routes);
 
-/* ===================== ASSETS ===================== */
-/* OpenTelemetry logo: CNCF artwork (icon, color), used under the CNCF trademark guidelines. No affiliation implied. */
-function logoSrc() { return "data:image/svg+xml;base64,/*@@OTEL_LOGO@@*/"; }
-/*@@FONTS@@*/
+function logoSrc() { return "data:image/svg+xml;base64,@@OTEL_LOGO@@"; }
+"@@FONTS@@";

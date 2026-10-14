@@ -1,13 +1,8 @@
-/* Frontend calls: fetch/XHR requests captured by Faro tracing that were slow or failed.
-   Rows come from this panel's Loki queries at render time. URLs are URL templates without query strings, and are masked again here. */
+const MAX_ROWS = 60;
+const DEFAULT_SLOW_MS = 1000;
+const VERY_SLOW_FACTOR = 10;
+const TRACE_LINK_FROM = "now-7d";
 
-/* ===================== CONSTANTS (defaults) ===================== */
-const MAX_ROWS = 60;          // calls listed
-const DEFAULT_SLOW_MS = 1000; // used when the slow_ms variable is empty
-const VERY_SLOW_FACTOR = 10;  // calls at slow_ms x this are drawn in red
-const TRACE_LINK_FROM = "now-7d"; // time range opened by the trace id link in Explore
-
-/* ===================== TEXTS (lang variable: en | pt-BR) ===================== */
 const I18N = {
   en: {
     title: "Frontend calls", sub: (s) => `Fetch/XHR calls slower than ${s} or answered with HTTP ≥ 400`,
@@ -27,9 +22,8 @@ const I18N = {
   },
 };
 
-/*@@RUNTIME@@*/
+"@@RUNTIME@@";
 
-/* ===================== DATA: buildData(data) ===================== */
 function buildData(d) {
   const S = (d && d.series) || [], rows = [], seen = {};
   const two = (n) => ("0" + n).slice(-2), TM = (ts) => { const x = new Date(ts); return two(x.getHours()) + ":" + two(x.getMinutes()) + ":" + two(x.getSeconds()) + "." + Math.floor(x.getMilliseconds() / 100); };
@@ -46,7 +40,6 @@ function buildData(d) {
   return { traces: rows.slice(0, MAX_ROWS), slowMs: RT.num("slow_ms", DEFAULT_SLOW_MS), ds: RT.v("tempo_ds", "") };
 }
 
-/* ===================== RENDER ===================== */
 const fmtMs = (v) => (v >= 1000 ? NF(v >= 10000 ? 1 : 2).format(v / 1000) + " s" : NF(0).format(v) + " ms");
 const kind = (r, slow) => (r.status >= 500 ? "e5" : r.status >= 400 ? "e4" : r.ms >= slow ? "slow" : "ok");
 const pillFor = (k, r) => (k === "e5" ? `<span class="pill bad">HTTP ${r.status}</span>` : k === "e4" ? `<span class="pill warn">HTTP ${r.status}</span>` : k === "slow" ? `<span class="pill bad" style="color:#FDA4AF">${esc(t("slow"))}</span>` : `<span class="pill good">OK</span>`);
@@ -82,5 +75,4 @@ function render(root, D) {
 
 RT.run("#ft-root", buildData, render, (D) => !D.traces.length, "empty");
 
-/* ===================== ASSETS ===================== */
-/*@@FONTS@@*/
+"@@FONTS@@";

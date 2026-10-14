@@ -78,7 +78,6 @@
 .ff td.msg{color:#DDE3EE}
 .ff td.mut{color:var(--muted)}
 .ff .err{color:var(--bad);font-size:11px;margin-top:6px}
-/* in-panel filters (view and browser are parsed fields, so they are picked here) */
 .ff .filt{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 var(--gap)}
 .ff .filt .lbl{margin-right:4px}
 .ff .filt button,.ff .chip button{font:inherit;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px 10px;cursor:pointer}

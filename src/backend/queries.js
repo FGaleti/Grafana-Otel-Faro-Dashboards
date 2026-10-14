@@ -1,16 +1,9 @@
-/* Slowest database statements: spans with db.query.text (or db.statement) under the service's HTTP routes, grouped by normalized text.
-   Statements come from a TraceQL search at render time. Literal values are replaced by "?" before anything is shown.
-   Cache systems (CACHE_SYSTEMS) are filtered out in the query itself, because their commands carry keys such as session ids. */
-
-/* ===================== CONSTANTS (defaults) ===================== */
-const MAX_QUERIES = 7;        // statements listed (by p95)
-const DEFAULT_SLOW_MS = 1000; // used when the slow_ms variable is empty; p95 at or above it is red
-const TRACE_LINK_FROM = "now-7d"; // time range opened by the trace id link in Explore
-const CACHE_SYSTEMS = ["redis", "valkey", "memcached", "dragonfly", "hazelcast", "ignite", "aerospike"]; // keep in sync with the query filter
-/* engines where "double quotes" delimit identifiers (kept); elsewhere they are treated as string literals (replaced) */
+const MAX_QUERIES = 7;
+const DEFAULT_SLOW_MS = 1000;
+const TRACE_LINK_FROM = "now-7d";
+const CACHE_SYSTEMS = ["redis", "valkey", "memcached", "dragonfly", "hazelcast", "ignite", "aerospike"];
 const DOUBLE_QUOTE_IDENTIFIERS = ["postgresql", "sqlite", "oracle", "oracle.db", "db2", "ibm.db2", "cockroachdb", "h2", "hsqldb", "derby", "trino", "presto", "snowflake", "redshift", "duckdb"];
 
-/* ===================== TEXTS (lang variable: en | pt-BR) ===================== */
 const I18N = {
   en: {
     title: "Slowest queries", sub: (s) => `Statements sent by the service, with literal values replaced by ?. Sorted by p95.${s}`, based: (n) => ` Based on ${n} traces returned by the search.`,
@@ -30,9 +23,8 @@ const I18N = {
   },
 };
 
-/*@@RUNTIME@@*/
+"@@RUNTIME@@";
 
-/* ===================== DATA: buildData(data) ===================== */
 function normalize(sql, system) {
   let s = String(sql == null ? "" : sql);
   s = s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/--[^\n]*/g, " ");
@@ -59,7 +51,6 @@ function buildData(d) {
   const q95 = (a) => { const s = a.slice().sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.ceil(0.95 * s.length) - 1)]; };
   const top = (o) => Object.entries(o).sort((a, b) => b[1] - a[1])[0];
 
-  /* server span (route) and statement spans come in the same response; they are joined by trace id */
   const T = {};
   rows.forEach((r) => {
     const id = tid(r); if (!id) return; const o = T[id] || (T[id] = { srv: null, q: [] });
@@ -79,12 +70,10 @@ function buildData(d) {
   return { queries, traces: nT, slowMs: RT.num("slow_ms", DEFAULT_SLOW_MS), ds: RT.v("tempo_ds", "") };
 }
 
-/* ===================== HELPERS ===================== */
 const fmtMs = (v) => (v >= 1000 ? NF(2).format(v / 1000) + " s" : NF(0).format(v) + " ms");
 const KW = /\b(SELECT|FROM|WHERE|AND|OR|LEFT JOIN|RIGHT JOIN|INNER JOIN|OUTER JOIN|JOIN|ON|GROUP BY|ORDER BY|HAVING|LIMIT|OFFSET|COUNT|SUM|MAX|MIN|AVG|OVER|AS|IN|IS|NOT|NULL|UPDATE|SET|INSERT|INTO|VALUES|DESC|ASC|DELETE|DISTINCT|CASE|WHEN|THEN|ELSE|END|LIKE|BETWEEN|EXISTS|UNION|WITH|RETURNING)\b/g;
 function hl(sql) { return esc(sql).replace(KW, '<span class="kw">$1</span>').replace(/\?/g, '<span class="ph">?</span>').replace(/(FROM|JOIN|UPDATE|INTO)<\/span> ([\w.`"]+)/g, '$1</span> <span class="tb">$2</span>'); }
 
-/* ===================== RENDER ===================== */
 function render(root, D) {
   const slow = D.slowMs, st = (v) => (v < slow * 0.3 ? "var(--accent)" : v < slow ? "var(--warn)" : "var(--bad)");
   const qs = D.queries, max = Math.max(...qs.map((q) => q.max || q.p95), 1);
@@ -107,5 +96,4 @@ function render(root, D) {
 
 RT.run("#bq-root", buildData, render, (D) => !D.queries.length, "empty");
 
-/* ===================== ASSETS ===================== */
-/*@@FONTS@@*/
+"@@FONTS@@";

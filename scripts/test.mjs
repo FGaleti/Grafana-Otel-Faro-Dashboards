@@ -1,5 +1,3 @@
-// Checks the privacy helpers used by the panels (masking, URL cleaning, SQL normalization) and the built dashboards.
-//   node scripts/test.mjs
 import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
@@ -9,15 +7,13 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const rd = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
 
-/* runtime + normalize() from the queries panel, evaluated without Grafana */
 const queries = rd("src/backend/queries.js");
-const consts = queries.slice(queries.indexOf("const DOUBLE_QUOTE_IDENTIFIERS"), queries.indexOf("/* ===================== TEXTS"));
+const consts = queries.slice(queries.indexOf("const DOUBLE_QUOTE_IDENTIFIERS"), queries.indexOf("const I18N ="));
 const normalize = queries.slice(queries.indexOf("function normalize("), queries.indexOf("function buildData("));
 const ctx = vm.createContext({ window: {}, location: { search: "" }, Intl });
 vm.runInContext("const I18N = {en:{},pt:{}};\n" + rd("src/shared/runtime.js") + "\n" + consts + "\n" + normalize + "\nthis.RT = RT; this.normalize = normalize;", ctx);
 const { RT, normalize: norm } = ctx;
 
-/* every e-mail, token, id and address below is a fictitious test input for the masking helpers */
 let n = 0;
 const ok = (name, fn) => { fn(); n++; console.log("ok -", name); };
 
@@ -46,7 +42,6 @@ ok("normalize: placeholders and identifiers with digits untouched", () => {
   assert.equal(norm("SELECT t1.col2 FROM tab_3 WHERE a = $1 AND b = :name", "postgresql"), "SELECT t1.col2 FROM tab_3 WHERE a = $1 AND b = :name");
 });
 
-/* built dashboards: no account-bound values, every metrics query within Tempo's 5 group-by labels, no search mixed with metrics */
 for (const file of fs.readdirSync(path.join(ROOT, "dashboards"))) {
   const d = JSON.parse(rd("dashboards/" + file));
   ok(file + ": datasources only through variables / import inputs", () => {

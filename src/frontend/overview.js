@@ -1,17 +1,10 @@
-/* Frontend overview: Grafana Faro events stored in Loki (sessions, page views, errors, Web Vitals, audience).
-   Every value comes from this panel's queries at render time; app, environment and filters come from dashboard variables.
-   view_name and browser_name are parsed fields (not Loki labels), so their filters are picked in this panel. */
-
-/* ===================== CONSTANTS (defaults) ===================== */
-const MAX_BARS = 8;           // rows in "Slowest views" and "Views with most errors"
-const MAX_BROWSERS = 3;       // browsers listed before "Others"
-const MAX_FILTER_VIEWS = 24;  // views offered as filter buttons (busiest first)
-const MAX_ERRORS = 6;         // rows in "Recent errors"
-const SCORE_GOOD = 75, SCORE_WARN = 50; // experience score bands (% of good page views)
-/* Web Vitals thresholds published by Google (good, poor); the unit of CLS is unitless */
+const MAX_BARS = 8;
+const MAX_BROWSERS = 3;
+const MAX_FILTER_VIEWS = 24;
+const MAX_ERRORS = 6;
+const SCORE_GOOD = 75, SCORE_WARN = 50;
 const VITALS = [["LCP", "ms", 2500, 4000], ["INP", "ms", 200, 500], ["CLS", "", 0.1, 0.25], ["FCP", "ms", 1800, 3000], ["TTFB", "ms", 800, 1800]];
 
-/* ===================== TEXTS (lang variable: en | pt-BR) ===================== */
 const I18N = {
   en: {
     title: "Frontend (Faro)", subtitle: "Real user monitoring · Web Vitals, errors and views", app: "App", env: "Environment", experience: (s) => `Experience: ${s}`,
@@ -45,9 +38,8 @@ const I18N = {
   },
 };
 
-/*@@RUNTIME@@*/
+"@@RUNTIME@@";
 
-/* ===================== DATA: buildData(data) ===================== */
 function buildData(d) {
   const S = (d && d.series) || [];
   const FS = (id) => S.filter((f) => f.refId === id);
@@ -95,7 +87,6 @@ function buildData(d) {
   };
 }
 
-/* ===================== HELPERS ===================== */
 let UID = 0;
 function fmtKpi(k) {
   if (k.value == null) return "—";
@@ -120,7 +111,6 @@ function sparkline(vals, w, h, color, opt = {}) {
 const scoreSt = (s) => (s == null ? "neutral" : s >= SCORE_GOOD ? "good" : s >= SCORE_WARN ? "warn" : "bad");
 const isOn = (cur, name) => cur !== ".*" && cur === RT.reEscape(name);
 
-/* ===================== SECTIONS ===================== */
 function header(D) {
   const st = scoreSt(D.score);
   return `<div class="hdr"><div class="brand">
@@ -206,7 +196,6 @@ function render(root, D) {
     ${barList(t("slowTitle"), t("slowHint"), D.slowRoutes, fmtMs, (v) => COLOR[status(v, lcp.good, lcp.poor)], "s5", t("noSlow"))}
     ${barList(t("errTitle"), t("errHint"), D.errorRoutes, (v) => NF(0).format(v), (v, i) => (i < 1 ? "var(--bad)" : i < 4 ? "var(--warn)" : "var(--accent)"), "s4", t("noErrors"))}
     ${audience(D)}${errors(D)}</div>`;
-  /* filters: view_name and browser_name values come from the panel's Loki queries; clicking sets the dashboard variable */
   root.onclick = (e) => {
     const el = e.target.closest("[data-pick]"); if (!el) return;
     const [kind, ...rest] = el.getAttribute("data-pick").split(":"), name = rest.join(":");
@@ -217,7 +206,5 @@ function render(root, D) {
 
 RT.run("#ff-root", buildData, render, (D) => D.kpis[0].value == null && D.kpis[1].value == null && D.vitals.every((v) => v.v == null) && !D.errors.length, "empty");
 
-/* ===================== ASSETS ===================== */
-/* Grafana Faro icon, cropped from docs/faro_logo_dark.png of github.com/grafana/faro-web-sdk (Apache-2.0). Faro is a trademark of Grafana Labs; no affiliation implied. */
-function faroLogo() { return "data:image/png;base64,/*@@FARO_LOGO@@*/"; }
-/*@@FONTS@@*/
+function faroLogo() { return "data:image/png;base64,@@FARO_LOGO@@"; }
+"@@FONTS@@";

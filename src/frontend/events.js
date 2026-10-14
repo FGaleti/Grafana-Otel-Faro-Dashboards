@@ -1,17 +1,10 @@
-/* Frontend events: the latest Faro events, summarised by kind.
-   The Loki query only returns an allow-list of fields (EVENT_FIELDS, same order as the query's line_format), so session and user
-   identifiers never reach the browser. Free text and URLs are masked again before display. */
-
-/* ===================== CONSTANTS (defaults) ===================== */
-const MAX_EVENTS = 200;       // events listed (also the query's maxLines)
-/* order must match the line_format of this panel's query (scripts/build.mjs, EVENT_FIELDS) */
+const MAX_EVENTS = 200;
 const EVENT_FIELDS = ["kind", "level", "type", "value", "message", "event_name", "event_domain", "view_name", "browser_name", "browser_version", "browser_os", "browser_mobile", "page_url",
   "context_rating", "lcp", "inp", "cls", "fcp", "ttfb", "context_load_state", "context_navigation_type", "context_interaction_type", "context_largest_shift_target",
   "event_data_http_request_method", "event_data_http_response_status_code", "event_data_url_template", "event_data_duration_ns", "event_data_duration", "event_data_cacheHitStatus", "event_data_decodedBodySize", "app_version"];
-const FREE_TEXT = ["value", "message", "context_largest_shift_target"]; // masked with RT.mask
-const URL_FIELDS = ["page_url", "event_data_url_template"];             // query string removed, id-like segments replaced
+const FREE_TEXT = ["value", "message", "context_largest_shift_target"];
+const URL_FIELDS = ["page_url", "event_data_url_template"];
 
-/* ===================== TEXTS (lang variable: en | pt-BR) ===================== */
 const I18N = {
   en: {
     title: "Faro events", sub: "Latest RUM events summarised by kind · click a row to see its fields (allow-listed, masked)",
@@ -31,9 +24,8 @@ const I18N = {
   },
 };
 
-/*@@RUNTIME@@*/
+"@@RUNTIME@@";
 
-/* ===================== DATA: buildData(data) ===================== */
 function buildData(d) {
   const S = (d && d.series) || [], out = [];
   S.forEach((fr) => {
@@ -51,7 +43,6 @@ function buildData(d) {
   return { lines: out.slice(0, MAX_EVENTS) };
 }
 
-/* ===================== HELPERS ===================== */
 const fmtTime = (ts) => { const x = new Date(ts); return x.toLocaleTimeString(RT.locale, { hour12: false }) + "." + String(x.getMilliseconds()).padStart(3, "0"); };
 const fmtMs = (v) => (v >= 1000 ? NF(2).format(v / 1000) + " s" : NF(0).format(v) + " ms");
 const fmtB = (b) => (b >= 1048576 ? NF(1).format(b / 1048576) + " MB" : b >= 1024 ? NF(1).format(b / 1024) + " KB" : NF(0).format(b) + " B");
@@ -77,7 +68,6 @@ function summarize(f) {
   return `<span class="name">${esc(f.event_name || f.message || f.kind)}</span>${view}`;
 }
 
-/* ===================== RENDER ===================== */
 const STATE = window.__otelFaroLogState || (window.__otelFaroLogState = { kind: "all", q: "", open: {} });
 function render(root, D) {
   const items = D.lines.map((l, i) => ({ id: i + ":" + l.ts, ts: l.ts, f: l.f, text: Object.values(l.f).join(" ").toLowerCase() }));
@@ -104,5 +94,4 @@ function render(root, D) {
 
 RT.run("#fl-root", buildData, render, (D) => !D.lines.length, "empty");
 
-/* ===================== ASSETS ===================== */
-/*@@FONTS@@*/
+"@@FONTS@@";

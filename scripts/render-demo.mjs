@@ -1,7 +1,3 @@
-// Renders every panel outside Grafana with the FICTITIOUS data in demo/frames.json, to produce the README screenshots.
-//   node scripts/render-demo.mjs              -> demo/out/*.html (open them in a browser)
-//   node scripts/render-demo.mjs --shots      -> also docs/images/*.png (needs playwright-core and a Chromium-based browser)
-// Optional env: PLAYWRIGHT_CORE (path to the playwright-core package), BROWSER_CHANNEL (chrome | msedge; default chrome), LANG_DEMO (en | pt-BR).
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -42,7 +38,6 @@ console.log("pages:", pages.join(", "));
 if (process.argv.includes("--shots")) {
   const pw = await import(pathToFileURL(path.join(process.env.PLAYWRIGHT_CORE || "playwright-core", "index.js")).href).catch(() => import("playwright-core"));
   const browser = await (pw.chromium || pw.default.chromium).launch({ channel: process.env.BROWSER_CHANNEL || "chrome", headless: true });
-  /* UTC, so the screenshots do not reveal the time zone of whoever renders them */
   const page = await browser.newPage({ viewport: { width: 1632, height: 900 }, deviceScaleFactor: 1, timezoneId: "UTC" });
   const IMG = path.join(ROOT, "docs/images");
   fs.mkdirSync(IMG, { recursive: true });
@@ -50,7 +45,6 @@ if (process.argv.includes("--shots")) {
     await page.goto(pathToFileURL(path.join(OUT, name + ".html")).href);
     await page.waitForTimeout(2500);
     await page.evaluate(() => { const s = document.querySelector("#host").shadowRoot; s.querySelectorAll("svg").forEach((x) => x.pauseAnimations && x.pauseAnimations()); });
-    /* long lists scroll inside Grafana; the screenshot keeps the first 1600 px */
     const box = await (await page.$("#host")).boundingBox();
     await page.setViewportSize({ width: 1632, height: Math.ceil(Math.min(box.height, 1600)) });
     await page.screenshot({ path: path.join(IMG, name + (vars.lang === "en" ? "" : "." + vars.lang) + ".png"), clip: { x: box.x, y: box.y, width: box.width, height: Math.min(box.height, 1600) } });
@@ -59,9 +53,7 @@ if (process.argv.includes("--shots")) {
   await browser.close();
 }
 
-/* --gif: animated flow map of the backend overview, frame by frame through the SVG clock (deterministic output) */
 if (process.argv.includes("--gif")) {
-  /* optional dev tools: from node_modules, or from a folder given by PLAYWRIGHT_CORE / GIFENC / PNGJS */
   const load = async (dir, pkg) => {
     if (!dir) return import(pkg);
     const meta = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"));
