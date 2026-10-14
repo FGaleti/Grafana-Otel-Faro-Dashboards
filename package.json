@@ -1,0 +1,22 @@
+{
+  "name": "otel-grafana-dashboards",
+  "version": "1.0.0",
+  "description": "Importable Grafana dashboards for OpenTelemetry traces (Tempo, TraceQL Metrics) and Grafana Faro RUM (Loki).",
+  "license": "MIT",
+  "author": "Felipe Galeti Gôngora",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/test.mjs",
+    "demo": "node scripts/render-demo.mjs --shots --gif"
+  },
+  "devDependencies": {
+    "gifenc": "^1.0.3",
+    "playwright-core": "^1.64.0",
+    "pngjs": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

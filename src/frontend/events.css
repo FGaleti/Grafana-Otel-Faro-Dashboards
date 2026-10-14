@@ -1,0 +1,49 @@
+.fw{
+  --bg:#0A0E18; --card:rgba(255,255,255,.035); --card-hi:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.07); --text:#EEF2F8; --muted:#8B95A9; --dim:#5B6478;
+  --accent:#7C9CFF; --accent-2:#B57CFF; --good:#34D399; --warn:#FBBF24; --bad:#F87171; --teal:#5EEAD4;
+  container-type:inline-size; box-sizing:border-box; min-height:100%;
+  font-family:"OTD Inter",Inter,"Segoe UI",system-ui,-apple-system,sans-serif; color:var(--text); font-size:13px; line-height:1.35;
+  background:radial-gradient(800px 300px at 100% 0%, rgba(181,124,255,.09), transparent 60%), var(--bg);
+  border:1px solid rgba(255,255,255,.08); border-radius:22px; padding:20px 22px;
+}
+.fw *{box-sizing:border-box}
+.fw .num{font-variant-numeric:tabular-nums}
+.fw .mono{font-family:"OTD JetBrains Mono","JetBrains Mono","SFMono-Regular",Consolas,monospace;font-size:12px}
+.fw .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.fw h2{font-size:16px;font-weight:500;margin:0}
+.fw .sub{color:var(--muted);font-size:12px;margin-top:3px}
+.fw .bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.fw .chips{display:flex;gap:6px;flex-wrap:wrap}
+.fw .chips button{all:unset;cursor:pointer;border:1px solid var(--border);background:var(--card);border-radius:999px;padding:5px 12px;font-size:12px;color:var(--muted)}
+.fw .chips button.on{border-color:rgba(124,156,255,.45);background:rgba(124,156,255,.14);color:var(--text)}
+.fw .chips b{font-weight:600;margin-left:6px;color:var(--dim)}
+.fw input.q{all:unset;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:7px 12px;width:300px;color:var(--text);font-size:12px}
+.fw input.q::placeholder{color:var(--dim)}
+.fw .list{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:rgba(255,255,255,.015)}
+.fw .row{display:grid;grid-template-columns:108px 118px minmax(0,1fr) 20px;gap:14px;align-items:center;padding:10px 16px;border-top:1px solid var(--border);cursor:pointer}
+.fw .item:first-child .row{border-top:0}
+.fw .row:hover,.fw .item.open .row{background:var(--card-hi)}
+.fw .lvl{width:3px;align-self:stretch;border-radius:2px}
+.fw .tag{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:500;white-space:nowrap}
+.fw .sum{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;white-space:nowrap}
+.fw .sum .name{font-weight:600}
+.fw .kv{display:inline-flex;gap:4px;border:1px solid var(--border);border-radius:8px;padding:2px 7px;font-size:11px;color:var(--muted);flex-shrink:0}
+.fw .kv i{font-style:normal;color:var(--text)}
+.fw .chev{color:var(--dim);transition:transform .15s}
+.fw .item.open .chev{transform:rotate(90deg);color:var(--text)}
+.fw .det{display:none;padding:4px 16px 16px 138px;background:var(--card-hi)}
+.fw .item.open .det{display:block}
+.fw .fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:2px 28px}
+.fw .fields div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.05)}
+.fw .fields span:first-child{color:var(--dim)}
+.fw .fields span:last-child{color:#DDE3EE;word-break:break-all}
+.fw .empty{padding:28px;text-align:center;color:var(--muted)}
+.fw .foot{color:var(--dim);font-size:11px;margin-top:10px}
+@container (max-width:900px){
+  .fw .row{grid-template-columns:84px 104px minmax(0,1fr) 16px}
+  .fw .det{padding-left:16px}
+  .fw .kv:nth-of-type(n+3){display:none}
+}
+.rt-state{padding:40px 24px;text-align:center;font-family:"OTD Inter",Inter,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.5;color:#8B95A9}
+.rt-state.bad{color:#F87171}
